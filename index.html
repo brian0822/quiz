@@ -1,0 +1,909 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>桃園機場 A類駕駛許可證 題庫複習</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0e1a;
+    --surface: #111827;
+    --surface2: #1a2235;
+    --border: #1e3a5f;
+    --accent: #0ea5e9;
+    --accent2: #38bdf8;
+    --green: #22c55e;
+    --red: #ef4444;
+    --yellow: #f59e0b;
+    --text: #e2e8f0;
+    --text-dim: #64748b;
+    --text-mid: #94a3b8;
+    --runway: #1e293b;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Noto Sans TC', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Background pattern */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(14, 165, 233, 0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(14, 165, 233, 0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  body::after {
+    content: '';
+    position: fixed;
+    top: -200px;
+    left: -200px;
+    width: 600px;
+    height: 600px;
+    background: radial-gradient(circle, rgba(14, 165, 233, 0.08) 0%, transparent 70%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 20px;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* Header */
+  header {
+    text-align: center;
+    padding: 40px 0 30px;
+  }
+
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(14, 165, 233, 0.1);
+    border: 1px solid rgba(14, 165, 233, 0.3);
+    border-radius: 20px;
+    padding: 6px 16px;
+    font-size: 12px;
+    color: var(--accent2);
+    font-family: 'JetBrains Mono', monospace;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 16px;
+  }
+
+  .badge::before {
+    content: '';
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--green);
+    animation: pulse 2s infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(0.8); }
+  }
+
+  h1 {
+    font-size: clamp(22px, 4vw, 36px);
+    font-weight: 900;
+    letter-spacing: -0.5px;
+    line-height: 1.2;
+    color: #fff;
+  }
+
+  h1 span {
+    color: var(--accent);
+  }
+
+  .subtitle {
+    color: var(--text-mid);
+    margin-top: 8px;
+    font-size: 14px;
+  }
+
+  /* Mode selector */
+  .mode-bar {
+    display: flex;
+    gap: 8px;
+    margin: 24px 0 20px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .mode-btn {
+    padding: 8px 20px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--text-mid);
+    cursor: pointer;
+    font-family: 'Noto Sans TC', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    transition: all 0.2s;
+  }
+
+  .mode-btn:hover { border-color: var(--accent); color: var(--text); }
+  .mode-btn.active {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #fff;
+    font-weight: 700;
+  }
+
+  /* Stats bar */
+  .stats-bar {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+
+  .stat {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px;
+    text-align: center;
+  }
+
+  .stat-val {
+    font-size: 22px;
+    font-weight: 900;
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--accent2);
+  }
+
+  .stat-val.green { color: var(--green); }
+  .stat-val.red { color: var(--red); }
+  .stat-val.yellow { color: var(--yellow); }
+
+  .stat-label {
+    font-size: 11px;
+    color: var(--text-dim);
+    margin-top: 2px;
+  }
+
+  /* Progress bar */
+  .progress-wrap {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 16px;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .progress-label {
+    font-size: 12px;
+    color: var(--text-dim);
+    white-space: nowrap;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  .progress-bar {
+    flex: 1;
+    height: 6px;
+    background: var(--runway);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent), var(--green));
+    border-radius: 3px;
+    transition: width 0.5s ease;
+  }
+
+  /* Question card */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 28px;
+    margin-bottom: 16px;
+    animation: slideIn 0.3s ease;
+  }
+
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .q-meta {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+
+  .q-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--accent);
+    background: rgba(14, 165, 233, 0.1);
+    border: 1px solid rgba(14, 165, 233, 0.2);
+    padding: 3px 10px;
+    border-radius: 6px;
+  }
+
+  .q-type {
+    font-size: 11px;
+    color: var(--text-dim);
+    background: var(--surface2);
+    padding: 3px 10px;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+  }
+
+  .q-keyword {
+    margin-left: auto;
+    font-size: 11px;
+    color: var(--yellow);
+    background: rgba(245, 158, 11, 0.1);
+    border: 1px solid rgba(245, 158, 11, 0.2);
+    padding: 3px 10px;
+    border-radius: 6px;
+  }
+
+  .q-text {
+    font-size: 16px;
+    font-weight: 500;
+    line-height: 1.7;
+    color: #fff;
+    margin-bottom: 20px;
+  }
+
+  /* Options */
+  .options {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .option {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 18px;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    background: var(--surface2);
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: left;
+    width: 100%;
+    color: var(--text);
+    font-family: 'Noto Sans TC', sans-serif;
+    font-size: 14px;
+    line-height: 1.5;
+  }
+
+  .option:hover:not(:disabled) {
+    border-color: var(--accent);
+    background: rgba(14, 165, 233, 0.08);
+  }
+
+  .option-letter {
+    min-width: 28px;
+    height: 28px;
+    border-radius: 6px;
+    background: var(--runway);
+    border: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--text-dim);
+    flex-shrink: 0;
+  }
+
+  .option.correct {
+    border-color: var(--green);
+    background: rgba(34, 197, 94, 0.1);
+  }
+  .option.correct .option-letter {
+    background: var(--green);
+    color: #fff;
+    border-color: var(--green);
+  }
+
+  .option.wrong {
+    border-color: var(--red);
+    background: rgba(239, 68, 68, 0.1);
+  }
+  .option.wrong .option-letter {
+    background: var(--red);
+    color: #fff;
+    border-color: var(--red);
+  }
+
+  .option:disabled { cursor: default; }
+
+  /* Feedback */
+  .feedback {
+    margin-top: 16px;
+    padding: 14px 18px;
+    border-radius: 10px;
+    font-size: 14px;
+    line-height: 1.6;
+    display: none;
+    animation: fadeIn 0.3s ease;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  .feedback.show { display: block; }
+
+  .feedback.correct-fb {
+    background: rgba(34, 197, 94, 0.1);
+    border: 1px solid rgba(34, 197, 94, 0.3);
+    color: #86efac;
+  }
+
+  .feedback.wrong-fb {
+    background: rgba(239, 68, 68, 0.1);
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    color: #fca5a5;
+  }
+
+  .feedback-icon {
+    font-size: 18px;
+    margin-right: 8px;
+  }
+
+  /* Source tag */
+  .source-tag {
+    margin-top: 10px;
+    font-size: 11px;
+    color: var(--text-dim);
+    font-style: italic;
+  }
+
+  /* Actions */
+  .actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 16px;
+    flex-wrap: wrap;
+  }
+
+  .btn {
+    padding: 12px 24px;
+    border-radius: 10px;
+    border: none;
+    cursor: pointer;
+    font-family: 'Noto Sans TC', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .btn-primary {
+    background: var(--accent);
+    color: #fff;
+    flex: 1;
+  }
+  .btn-primary:hover { background: var(--accent2); transform: translateY(-1px); }
+
+  .btn-secondary {
+    background: var(--surface2);
+    color: var(--text-mid);
+    border: 1px solid var(--border);
+  }
+  .btn-secondary:hover { border-color: var(--accent); color: var(--text); }
+
+  .btn-danger {
+    background: rgba(239, 68, 68, 0.15);
+    color: #fca5a5;
+    border: 1px solid rgba(239, 68, 68, 0.3);
+  }
+
+  /* Result screen */
+  .result-screen {
+    display: none;
+    text-align: center;
+    padding: 40px 20px;
+  }
+
+  .result-screen.show { display: block; }
+
+  .result-score {
+    font-size: 80px;
+    font-weight: 900;
+    font-family: 'JetBrains Mono', monospace;
+    line-height: 1;
+    margin: 20px 0;
+  }
+
+  .result-grade {
+    font-size: 20px;
+    font-weight: 700;
+    margin-bottom: 10px;
+  }
+
+  .result-msg {
+    color: var(--text-mid);
+    font-size: 14px;
+    margin-bottom: 30px;
+  }
+
+  /* Filter tabs */
+  .filter-bar {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+  }
+
+  .filter-btn {
+    padding: 6px 14px;
+    border-radius: 20px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--text-dim);
+    cursor: pointer;
+    font-size: 12px;
+    font-family: 'Noto Sans TC', sans-serif;
+    transition: all 0.2s;
+  }
+
+  .filter-btn:hover { border-color: var(--accent); color: var(--text); }
+  .filter-btn.active { background: rgba(14, 165, 233, 0.15); border-color: var(--accent); color: var(--accent2); }
+
+  /* Runway decoration */
+  .runway-deco {
+    height: 3px;
+    background: repeating-linear-gradient(90deg, var(--yellow) 0, var(--yellow) 20px, transparent 20px, transparent 40px);
+    margin: 20px 0;
+    border-radius: 2px;
+    opacity: 0.4;
+  }
+
+  /* T/F special layout */
+  .tf-options {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+
+  .tf-opt {
+    padding: 20px;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    background: var(--surface2);
+    cursor: pointer;
+    text-align: center;
+    font-size: 28px;
+    font-weight: 900;
+    transition: all 0.2s;
+    color: var(--text-mid);
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  .tf-opt:hover:not(:disabled) { transform: scale(1.02); }
+  .tf-opt.tf-true:hover:not(:disabled) { border-color: var(--green); color: var(--green); background: rgba(34,197,94,0.08); }
+  .tf-opt.tf-false:hover:not(:disabled) { border-color: var(--red); color: var(--red); background: rgba(239,68,68,0.08); }
+  .tf-opt.correct { border-color: var(--green); color: var(--green); background: rgba(34,197,94,0.1); }
+  .tf-opt.wrong { border-color: var(--red); color: var(--red); background: rgba(239,68,68,0.1); }
+  .tf-opt:disabled { cursor: default; }
+
+  .tf-sub { font-size: 12px; font-weight: 400; font-family: 'Noto Sans TC', sans-serif; margin-top: 4px; }
+
+  @media (max-width: 600px) {
+    .stats-bar { grid-template-columns: repeat(2, 1fr); }
+    .card { padding: 18px; }
+    .q-keyword { display: none; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <div class="badge">TAOYUAN INTL AIRPORT · TPE/RCTP</div>
+    <h1>A類<span>駕駛許可證</span><br>題庫複習系統</h1>
+    <p class="subtitle">桃園國際機場空側駕駛許可證測驗 · 115年3月2日公布版</p>
+  </header>
+
+  <div class="mode-bar">
+    <button class="mode-btn active" onclick="setMode('all')">📋 全部題目</button>
+    <button class="mode-btn" onclick="setMode('single')">🔘 單選題</button>
+    <button class="mode-btn" onclick="setMode('truefalse')">✅ 是非題</button>
+    <button class="mode-btn" onclick="setMode('random')">🔀 隨機練習</button>
+    <button class="mode-btn" onclick="setMode('wrong')">❌ 錯題複習</button>
+  </div>
+
+  <div class="stats-bar">
+    <div class="stat">
+      <div class="stat-val" id="stat-total">0</div>
+      <div class="stat-label">總題數</div>
+    </div>
+    <div class="stat">
+      <div class="stat-val" id="stat-done">0</div>
+      <div class="stat-label">已作答</div>
+    </div>
+    <div class="stat">
+      <div class="stat-val green" id="stat-correct">0</div>
+      <div class="stat-label">答對</div>
+    </div>
+    <div class="stat">
+      <div class="stat-val red" id="stat-wrong">0</div>
+      <div class="stat-label">答錯</div>
+    </div>
+  </div>
+
+  <div class="progress-wrap">
+    <span class="progress-label" id="prog-label">0 / 0</span>
+    <div class="progress-bar">
+      <div class="progress-fill" id="prog-fill" style="width:0%"></div>
+    </div>
+    <span class="progress-label" id="prog-pct">0%</span>
+  </div>
+
+  <div class="runway-deco"></div>
+
+  <div id="quiz-area"></div>
+
+  <div class="result-screen" id="result-screen">
+    <div class="badge">測驗完成</div>
+    <div class="result-score" id="result-score"></div>
+    <div class="result-grade" id="result-grade"></div>
+    <div class="result-msg" id="result-msg"></div>
+    <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
+      <button class="btn btn-primary" onclick="restartQuiz()">🔄 重新練習</button>
+      <button class="btn btn-secondary" onclick="setMode('wrong')">❌ 複習錯題</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ========== DATA ==========
+const QUESTIONS = [
+  // === 單選題 ===
+  {id:1,type:'single',q:'何者為機場內供航空器起飛、降落及滑行之區域，但不包括停機坪？',opts:['操作區','活動區','裝備區','勤務道路'],ans:0,kw:'空側區域'},
+  {id:2,type:'single',q:'何者為指機場內供航機起飛、降落及滑行之區域，包括操作區及停機坪？',opts:['活動區','操作區','停機坪','勤務道路'],ans:0,kw:'空側區域'},
+  {id:3,type:'single',q:'何者為規範桃園國際機場操作區活動之車輛，其無線電呼號、車載ADS-B裝備呼號代碼及Mode S位址等設定得以有效管理之程序？',opts:['桃園國際機場操作區車載ADS-B裝備呼號識別設定及管理規定','桃園國際機場停機坪作業管理規定','桃園國際機場航空器停靠停機坪原則','桃園國際機場航機到離場作業程序'],ans:0,kw:'作業程序'},
+  {id:4,type:'single',q:'進入操作區車輛須裝設何種設備，獲塔臺許可始可穿越、通行及滯留操作區？',opts:['選項皆是','可與塔臺通聯之無線電','ADS-B','最新版之桃園國際機場全區配置圖'],ans:0,kw:'操作區'},
+  {id:5,type:'single',q:'進入操作區車輛應獲何單位許可始可穿越、通行及滯留操作區？',opts:['塔臺','航務處','營運安全處','工程處'],ans:0,kw:'操作區'},
+  {id:6,type:'single',q:'未裝設無線電機場之車輛欲進入操作區時，應事先聯繫桃園國際機場公司何單位派員引導？',opts:['航務處','塔臺','工程處','營運安全處'],ans:0,kw:'操作區'},
+  {id:7,type:'single',q:'進入何區域之車輛駕駛人應著反光背心且熟悉正確之無線電通話程序、空側區域內地形配置、各項標線及指示牌之意義及空側行車規定？',opts:['操作區','活動區','停機坪','勤務道路'],ans:0,kw:'操作區'},
+  {id:8,type:'single',q:'進入操作區之車輛駕駛人及工作人員應著？',opts:['反光背心','安全帽','外套','太陽眼鏡'],ans:0,kw:'空側區域'},
+  {id:9,type:'single',q:'進入操作區之車輛駕駛人對於何種程序應熟悉？',opts:['選項皆是','無線電通信術語','空側區域內地形配置','各項標線及指示牌之意義'],ans:0,kw:'操作區'},
+  {id:10,type:'single',q:'車輛或裝備在活動區內發生故障，應儘速通知航務處。以下何種選項並不包含於活動區？',opts:['P1~P4停車場','跑道','滑行道','停機坪'],ans:0,kw:'空側區域'},
+  {id:11,type:'single',q:'車輛或裝備在活動區內發生故障，應儘通知何單位？',opts:['航務處','工程處','營運安全處','塔臺'],ans:0,kw:'空側區域'},
+  {id:12,type:'single',q:'指機場內供航機起飛、降落及滑行之區域，包括跑道、滑行道，但不包括停機坪稱之為何？',opts:['操作區','活動區','跑道','滑行道'],ans:0,kw:'空側區域'},
+  {id:13,type:'single',q:'可駕駛車輛由桃園機場北七崗、北六崗、北六之一崗、北一崗、北機口、南一崗進出；並可通行跑道、滑行道、停機坪、交通道、勤務道、環場道、行李處理場之車輛通行證為何？',opts:['A類車輛通行證','B類車輛通行證','C類車輛通行證','D類車輛通行證'],ans:0,kw:'車輛通行證'},
+  {id:14,type:'single',q:'何者禁止穿越Q滑行道？',opts:['行人','航務處黃車','維護處作業車輛','消防車'],ans:0,kw:'滑行道'},
+  {id:15,type:'single',q:'作業人員執行拖機作業時，拖機速度於停機坪上不得超過每小時幾公里？',opts:['5','10','15','20'],ans:0,kw:'速限'},
+  {id:16,type:'single',q:'作業人員執行拖機作業時，拖桿式拖機速度於滑行道上不得超過每小時幾公里？',opts:['15','20','25','30'],ans:0,kw:'速限'},
+  {id:17,type:'single',q:'作業人員執行拖機作業時，無拖桿式拖車於滑行道上不得超過每小時幾公里？',opts:['20','25','30','35'],ans:0,kw:'速限'},
+  {id:18,type:'single',q:'執行拖機作業應與何單位保持無線電通聯，並按其指示路線行進？',opts:['塔臺','航務處','營運安全處','工程處'],ans:0,kw:'無線電通訊'},
+  {id:19,type:'single',q:'車載ADS-B裝備所設定之識別代碼應與其無線電呼號？',opts:['相對應','可以不一致','視情況'],ans:0,kw:'無線電通訊'},
+  {id:20,type:'single',q:'車輛駕駛進出操作區所使用之無線電呼號名稱如何命名？',opts:['依ADS-B設備設定之代碼命名','駕駛人自行命名決定','依車牌號碼與車身顏色','塔台編排'],ans:0,kw:'無線電通訊'},
+  {id:21,type:'single',q:'進入操作區車輛應裝設何種裝備且獲塔臺許可始可進出及滯留操作區？',opts:['選項皆是','ADS-B','閃光警示燈','可通聯之無線電'],ans:0,kw:'操作區'},
+  {id:22,type:'single',q:'緊急出勤之任務車輛需進出操作區時，應如何處理始能作業？',opts:['由持有A類駕駛證之駕駛操作具有A類車輛通行證之車輛引導進出','逕行尾隨操作區的車輛進出','使用手機呼叫操作區車輛轉告塔台後即可進入','自行持無線電呼叫塔台進出'],ans:0,kw:'操作區'},
+  {id:23,type:'single',q:'跑道邊線之顏色為何？',opts:['白色','黃色','紅色','綠色'],ans:0,kw:'標線'},
+  {id:24,type:'single',q:'管制用語「跑道外等待」所指的跑道等待位置標線為何型態？',opts:['平行的一對實線及一對虛線','平行的兩對虛線','平行的兩對實線','平行的一條實線及一條虛線'],ans:0,kw:'標線'},
+  {id:25,type:'single',q:'滑行道中心線標線之顏色為何？',opts:['黃色','白色','紅色','綠色'],ans:0,kw:'標線'},
+  {id:26,type:'single',q:'資訊指示牌中，為航機駕駛員、車輛駕駛提供其所在位置之位置指示牌形式為何？',opts:['黑底黃字','黃底黑字','紅底白字','白底紅字'],ans:0,kw:'指示牌'},
+  {id:27,type:'single',q:'資訊指示牌中，為航機與車輛駕駛提供方向或目的地資訊之方向指示牌形式為何？',opts:['黃底黑字','黑底黃字','紅底白字','白底紅字'],ans:0,kw:'指示牌'},
+  {id:28,type:'single',q:'設置於必須經塔臺授權始可允許航機滑行或車輛移動之位置前之強制性指示牌形式為何？',opts:['紅底白字','白底紅字','黑底黃字','黃底黑字'],ans:0,kw:'指示牌'},
+  {id:29,type:'single',q:'滑行道中心線燈之顏色為何？',opts:['綠色','白色','藍色','紅色'],ans:0,kw:'燈光'},
+  {id:30,type:'single',q:'滑行道邊燈之顏色為何？',opts:['藍色','綠色','白色','紅色'],ans:0,kw:'燈光'},
+  {id:31,type:'single',q:'停止線燈之顏色為何？',opts:['紅色','綠色','藍色','白色'],ans:0,kw:'燈光'},
+  {id:32,type:'single',q:'跑道警戒燈為何種顏色的閃燈？',opts:['黃色','綠色','紅色','藍色'],ans:0,kw:'燈光'},
+  {id:33,type:'single',q:'可進入跑道、滑道行駛之車輛通行證類別為何？',opts:['車輛通行證A類證','車輛通行證B類證','車輛通行證C類證','車輛通行證D類證'],ans:0,kw:'車輛通行證'},
+  {id:34,type:'single',q:'桃園國際機場北跑道編號為何？',opts:['05L/23R','05R/23L','06L/24R','06R/24L'],ans:0,kw:'空側區域'},
+  {id:35,type:'single',q:'桃園國際機場南跑道編號為何？',opts:['05R/23L','05L/23R','06R/24L','06L/24R'],ans:0,kw:'空側區域'},
+  {id:36,type:'single',q:'於操作區內施工之車輛與人員應接受何單位之管制？',opts:['塔臺','航務處','工程處','維護處'],ans:0,kw:'操作區'},
+  {id:37,type:'single',q:'使用無線電與塔臺通聯時，遇有阿拉伯數字與英文字母時，需使用何種術語？',opts:['航空無線電用語','NCC規定用語','視情況而定','自行判斷情況'],ans:0,kw:'無線電通訊'},
+  {id:38,type:'single',q:'低能見度情況下，於操作區內迷失方向時，應採取何種措施？',opts:['原地等候並與塔臺保持聯繫','逕行摸索方向','無特別規定','自行判斷情況'],ans:0,kw:'操作區'},
+  {id:39,type:'single',q:'機場天氣預報中有任一RVR值低於550公尺時之狀況，稱之為？',opts:['低能見度狀況','不良天候','特殊天候狀況','無特別定義'],ans:0,kw:'低能見度'},
+  {id:40,type:'single',q:'航空器駕駛員在跑道中心線上，能夠看見跑道道面標線或用以界定跑道邊界或辨識跑道中心線燈光之距離，稱之為？',opts:['跑道視程','可視距離','能見度','目視界線'],ans:0,kw:'低能見度'},
+  {id:41,type:'single',q:'當塔臺指示於CAT Ⅱ停等線外等待時，應於何者前停等？',opts:['B型跑道等待區位置','A型跑道等待區位置','無特別規定'],ans:0,kw:'停等'},
+  {id:42,type:'single',q:'當塔臺指示於跑道外等待時，應於何者前停等？',opts:['A型跑道等待區位置','B型跑道等待區位置','無特別規定'],ans:0,kw:'停等'},
+  {id:43,type:'single',q:'N滑行道念法為？',opts:['NO VEM BER 滑行道','NORTH滑行道','PAH PAH','CHARLE滑行道'],ans:0,kw:'無線電通訊'},
+  {id:44,type:'single',q:'S滑行道念法為？',opts:['SEE AIR AH 滑行道','SOUTH 滑行道','YANG KEY 滑行道','OSS CAH 滑行道'],ans:0,kw:'無線電通訊'},
+  {id:45,type:'single',q:'P滑行道念法為？',opts:['PAH PAH 滑行道','PEOPLE 滑行道','NO VEM BER/PAH PAH 滑行道','JEW LEE ETT/PAH'],ans:0,kw:'無線電通訊'},
+  {id:46,type:'single',q:'R滑行道念法為？',opts:['ROW ME OH 滑行道','FOKS TROT 滑行道','IN DEE AH 滑行道','ECK OH 滑行道'],ans:0,kw:'無線電通訊'},
+  {id:47,type:'single',q:'Q滑行道念法為？',opts:['KEH BECK 滑行道','ROW ME OH 滑行道','SEE AIR AH 滑行道','TANGO 滑行道'],ans:0,kw:'無線電通訊'},
+  {id:48,type:'single',q:'E滑行道念法為？',opts:['ECK OH 滑行道','ECKS RAY 滑行道','EA STER 滑行道','EE VAH 滑行道'],ans:0,kw:'無線電通訊'},
+  {id:49,type:'single',q:'W滑行道念法為？',opts:['WISS KEY 滑行道','WIN TER 滑行道','WA TER 滑行道','OSS CAH 滑行道'],ans:0,kw:'無線電通訊'},
+  {id:50,type:'single',q:'數字0的念法為？',opts:['ZE-RO','WUN','TREE','OH'],ans:0,kw:'無線電通訊'},
+  {id:51,type:'single',q:'數字1的念法為？',opts:['WUN','FOW-ER','TREE','TOO'],ans:0,kw:'無線電通訊'},
+  {id:52,type:'single',q:'數字2的念法為？',opts:['TOO','WUN','TREE','FIFE'],ans:0,kw:'無線電通訊'},
+  {id:53,type:'single',q:'數字3的念法為？',opts:['TREE','WUN','FOW-ER','TOO'],ans:0,kw:'無線電通訊'},
+  {id:54,type:'single',q:'數字4的念法為？',opts:['FOW-ER','WUN','FIFE','SIX'],ans:0,kw:'無線電通訊'},
+  {id:55,type:'single',q:'數字5的念法為？',opts:['FIFE','SIX','SEV-EH','TOO'],ans:0,kw:'無線電通訊'},
+  {id:56,type:'single',q:'數字6的念法為？',opts:['SIX','FIFE','ZE-RO','SEV-EH'],ans:0,kw:'無線電通訊'},
+  {id:57,type:'single',q:'數字7的念法為？',opts:['SEV-EN','AIT','NIN-ER','TOO'],ans:0,kw:'無線電通訊'},
+  {id:58,type:'single',q:'數字8的念法為？',opts:['AIT','WUN','SEV-EH','ZE-RO'],ans:0,kw:'無線電通訊'},
+  {id:59,type:'single',q:'數字9的念法為？',opts:['NIN-ER','FIFE','FOW-ER','WUN'],ans:0,kw:'無線電通訊'},
+  {id:60,type:'single',q:'於空側作業之人員及車輛應禮讓？',opts:['選項皆是','航機','航務處黃車','旅客接駁車'],ans:0,kw:'通行權'},
+  {id:61,type:'single',q:'RVR低於多少時啟動低能見度作業程序？',opts:['550公尺','750公尺','850公尺','300公尺'],ans:0,kw:'低能見度'},
+  {id:62,type:'single',q:'夜間多部車輛穿越05L跑道欲由L1脫離時，應何時向塔臺報告已脫離跑道？',opts:['最後一部車通過停止線燈後','第一部車通過停止線燈後','半數車輛通過停止線燈後'],ans:0,kw:'無線電通訊'},
+  {id:63,type:'single',q:'夜間航機拖車拖行航機穿越05L跑道欲由L2脫離時，應何時向塔臺報告已脫離跑道？',opts:['拖行航機之機尾通過停止線燈','航機拖車通過停止線燈'],ans:0,kw:'無線電通訊'},
+  {id:64,type:'single',q:'多部車輛穿越23R跑道欲由L2脫離時，應何時向塔臺報告已脫離跑道？',opts:['最後一部車通過B型等待位置（距跑道較遠，又稱CAT II停等線）','最後一部車通過A型等待位置（距跑道較近）','第一部車通過B型等待位置','第一部車通過A型等待位置'],ans:0,kw:'無線電通訊'},
+  {id:65,type:'single',q:'航機拖車拖行航機穿越23R跑道欲由L1脫離時，應何時向塔臺報告已脫離跑道？',opts:['拖行航機之機尾通過B型等待位置（距跑道較遠，又稱CAT II停等線）','拖行航機之機尾通過A型等待位置（距跑道較近）','航機拖車通過B型等待位置','航機拖車通過A型等待位置'],ans:0,kw:'無線電通訊'},
+
+  // === 是非題 ===
+  {id:101,type:'tf',q:'未裝設無線電之車輛欲進入操作區時，應事先聯繫桃園機場公司航務處。',ans:true,kw:'無線電通訊'},
+  {id:102,type:'tf',q:'申請進入操作區車輛應裝設無線電，應隨時守聽塔臺與其他單位之動態。',ans:true,kw:'無線電通訊'},
+  {id:103,type:'tf',q:'進入操作區車輛應裝設可與塔臺通聯之無線電、ADS-B、閃光警示燈及本機場平面圖，無須獲塔臺許可即可穿越、通行及滯留操作區。',ans:false,kw:'無線電通訊'},
+  {id:104,type:'tf',q:'跑道標線之顏色為黃色。',ans:false,kw:'標線'},
+  {id:105,type:'tf',q:'跑道標線之顏色為白色。',ans:true,kw:'標線'},
+  {id:106,type:'tf',q:'停機位導入線之顏色為黃色。',ans:true,kw:'標線'},
+  {id:107,type:'tf',q:'停機坪安全線之顏色為黃色。',ans:false,kw:'標線'},
+  {id:108,type:'tf',q:'強制性指示牌為黃底黑字，表示前方須經塔臺同意始可允許航機滑行或車輛移動之位置。',ans:false,kw:'指示牌'},
+  {id:109,type:'tf',q:'強制性指示牌為紅底白字，表示前方須經塔臺同意始可允許航機滑行或車輛移動之位置。',ans:true,kw:'指示牌'},
+  {id:110,type:'tf',q:'位置指示牌中，黃底黑字表示目前位置。',ans:false,kw:'指示牌'},
+  {id:111,type:'tf',q:'位置指示牌中，黑底黃字表示目前位置。',ans:true,kw:'指示牌'},
+  {id:112,type:'tf',q:'無線電發話前，應先確認有無他人正在通話。',ans:true,kw:'無線電通訊'},
+  {id:113,type:'tf',q:'無線電通話時，不必覆誦所有「通過」及等待之指示。',ans:false,kw:'無線電通訊'},
+  {id:114,type:'tf',q:'低能見度狀況下，塔臺管制員得禁止任何非必要車輛進入操作區。',ans:true,kw:'低能見度'},
+  {id:115,type:'tf',q:'跑道入侵係指在機場內，航空器、車輛或人員異常出現在航空器起降保護區平面上。',ans:true,kw:'跑道入侵'},
+  {id:116,type:'tf',q:'若無塔臺特別的指示，車輛應該禮讓航空器。',ans:true,kw:'通行權'},
+  {id:117,type:'tf',q:'若無塔臺特別的指示，車輛應該禮讓滑行道上通行車輛（如巡檢車輛、航機拖車等）。',ans:true,kw:'通行權'},
+  {id:118,type:'tf',q:'航機拖車將航機拖行進入第三航廈北登機廊廳（D11-D18）停機位時，無須車道管制員進行交通管制。',ans:true,kw:'交通道'},
+  {id:119,type:'tf',q:'在跑道內造成FOD會使空側駕駛資格停權30天且須於7日內提出改善報告。',ans:true,kw:'FOD'},
+];
+
+// ========== STATE ==========
+let mode = 'all';
+let pool = [];
+let current = 0;
+let answered = false;
+let correctCount = 0;
+let wrongCount = 0;
+let wrongIds = new Set();
+let sessionAnswered = new Set();
+
+const LABELS = ['A','B','C','D'];
+
+function setMode(m) {
+  mode = m;
+  document.querySelectorAll('.mode-btn').forEach((b,i) => {
+    const modes = ['all','single','truefalse','random','wrong'];
+    b.classList.toggle('active', modes[i] === m);
+  });
+  restartQuiz();
+}
+
+function buildPool() {
+  let base = [...QUESTIONS];
+  if (mode === 'single') base = base.filter(q=>q.type==='single');
+  else if (mode === 'truefalse') base = base.filter(q=>q.type==='tf');
+  else if (mode === 'wrong') {
+    base = base.filter(q=>wrongIds.has(q.id));
+    if (base.length === 0) { alert('目前沒有錯題！請先作答後再複習。'); return false; }
+  }
+  if (mode === 'random') {
+    base = base.sort(()=>Math.random()-0.5);
+  }
+  return base;
+}
+
+function restartQuiz() {
+  const p = buildPool();
+  if (!p) return;
+  pool = p;
+  current = 0;
+  answered = false;
+  correctCount = 0;
+  wrongCount = 0;
+  sessionAnswered = new Set();
+  document.getElementById('result-screen').classList.remove('show');
+  document.getElementById('quiz-area').style.display = 'block';
+  updateStats();
+  renderQuestion();
+}
+
+// Store shuffled order for current question
+let shuffledOpts = [];
+
+function renderQuestion() {
+  if (current >= pool.length) {
+    showResult();
+    return;
+  }
+  const q = pool[current];
+  answered = false;
+  updateStats();
+
+  const area = document.getElementById('quiz-area');
+  const typeLabel = q.type === 'single' ? '單選題' : '是非題';
+
+  let optHTML = '';
+  if (q.type === 'single') {
+    // Shuffle options, track where correct answer ends up
+    const indices = q.opts.map((_,i) => i).sort(() => Math.random() - 0.5);
+    shuffledOpts = indices; // indices[displayPos] = originalIndex
+    const shuffledCorrectPos = indices.indexOf(q.ans);
+
+    optHTML = `<div class="options">` +
+      indices.map((origIdx, displayPos) => `
+        <button class="option" onclick="answer(${displayPos})" id="opt-${displayPos}">
+          <span class="option-letter">${LABELS[displayPos]}</span>
+          <span>${q.opts[origIdx]}</span>
+        </button>`).join('') +
+      `</div>`;
+  } else {
+    optHTML = `<div class="tf-options">
+      <button class="tf-opt tf-true" onclick="answerTF(true)" id="tf-true">
+        ○<div class="tf-sub">正確</div>
+      </button>
+      <button class="tf-opt tf-false" onclick="answerTF(false)" id="tf-false">
+        ✕<div class="tf-sub">錯誤</div>
+      </button>
+    </div>`;
+  }
+
+  area.innerHTML = `
+    <div class="card">
+      <div class="q-meta">
+        <span class="q-num">Q${current+1}</span>
+        <span class="q-type">${typeLabel}</span>
+        <span class="q-keyword"># ${q.kw}</span>
+      </div>
+      <div class="q-text">${q.q}</div>
+      ${optHTML}
+      <div class="feedback" id="feedback"></div>
+    </div>
+    <div class="actions">
+      ${answered ? `<button class="btn btn-primary" onclick="nextQuestion()">下一題 →</button>` : ''}
+      <button class="btn btn-secondary" onclick="skipQuestion()">跳過</button>
+    </div>
+  `;
+}
+
+function answer(displayPos) {
+  if (answered) return;
+  answered = true;
+  const q = pool[current];
+  const originalIdx = shuffledOpts[displayPos];
+  const correct = originalIdx === q.ans;
+  const correctDisplayPos = shuffledOpts.indexOf(q.ans);
+  sessionAnswered.add(q.id);
+  if (correct) {
+    correctCount++;
+    wrongIds.delete(q.id);
+  } else {
+    wrongCount++;
+    wrongIds.add(q.id);
+  }
+
+  // Style options
+  shuffledOpts.forEach((_, i) => {
+    const btn = document.getElementById(`opt-${i}`);
+    btn.disabled = true;
+    if (i === correctDisplayPos) btn.classList.add('correct');
+    else if (i === displayPos) btn.classList.add('wrong');
+  });
+
+  showFeedback(correct, correct ? '' : `正確答案：${LABELS[correctDisplayPos]}. ${q.opts[q.ans]}`);
+  updateActions();
+}
+
+function answerTF(val) {
+  if (answered) return;
+  answered = true;
+  const q = pool[current];
+  const correct = val === q.ans;
+  sessionAnswered.add(q.id);
+  if (correct) {
+    correctCount++;
+    wrongIds.delete(q.id);
+  } else {
+    wrongCount++;
+    wrongIds.add(q.id);
+  }
+
+  document.getElementById('tf-true').disabled = true;
+  document.getElementById('tf-false').disabled = true;
+
+  if (q.ans === true) {
+    document.getElementById('tf-true').classList.add('correct');
+    if (!correct) document.getElementById('tf-false').classList.add('wrong');
+  } else {
+    document.getElementById('tf-false').classList.add('correct');
+    if (!correct) document.getElementById('tf-true').classList.add('wrong');
+  }
+
+  showFeedback(correct, `正確答案：${q.ans ? '○ 正確' : '✕ 錯誤'}`);
+  updateActions();
+}
+
+function showFeedback(correct, hint) {
+  const fb = document.getElementById('feedback');
+  fb.className = `feedback show ${correct ? 'correct-fb' : 'wrong-fb'}`;
+  fb.innerHTML = `<span class="feedback-icon">${correct ? '✅' : '❌'}</span>${correct ? '答對了！' : '答錯了。'} ${hint}`;
+}
+
+function updateActions() {
+  const area = document.getElementById('quiz-area');
+  const actions = area.querySelector('.actions');
+  if (actions) {
+    actions.innerHTML = `
+      <button class="btn btn-primary" onclick="nextQuestion()">下一題 →</button>
+      <button class="btn btn-secondary" onclick="skipQuestion()">跳過</button>
+    `;
+  }
+}
+
+function nextQuestion() {
+  current++;
+  renderQuestion();
+}
+
+function skipQuestion() {
+  current++;
+  if (current >= pool.length) showResult();
+  else renderQuestion();
+}
+
+function updateStats() {
+  document.getElementById('stat-total').textContent = pool.length || 0;
+  document.getElementById('stat-done').textContent = sessionAnswered.size;
+  document.getElementById('stat-correct').textContent = correctCount;
+  document.getElementById('stat-wrong').textContent = wrongCount;
+
+  const pct = pool.length ? Math.round(sessionAnswered.size / pool.length * 100) : 0;
+  document.getElementById('prog-fill').style.width = pct + '%';
+  document.getElementById('prog-label').textContent = `${current} / ${pool.length}`;
+  document.getElementById('prog-pct').textContent = pct + '%';
+}
+
+function showResult() {
+  document.getElementById('quiz-area').style.display = 'none';
+  const rs = document.getElementById('result-screen');
+  rs.classList.add('show');
+
+  const total = sessionAnswered.size;
+  const pct = total ? Math.round(correctCount / total * 100) : 0;
+
+  let grade, color, msg;
+  if (pct >= 90) { grade = '優秀 🏆'; color = '#22c55e'; msg = '表現卓越！準備好考試了！'; }
+  else if (pct >= 80) { grade = '良好 👍'; color = '#0ea5e9'; msg = '相當不錯，再複習弱點即可。'; }
+  else if (pct >= 60) { grade = '尚可 📚'; color = '#f59e0b'; msg = '還需要加強，多複習錯題。'; }
+  else { grade = '需加強 💪'; color = '#ef4444'; msg = '請重新仔細複習題庫。'; }
+
+  document.getElementById('result-score').textContent = pct + '%';
+  document.getElementById('result-score').style.color = color;
+  document.getElementById('result-grade').textContent = grade;
+  document.getElementById('result-msg').textContent = `作答 ${total} 題，答對 ${correctCount} 題，答錯 ${wrongCount} 題。${msg}`;
+}
+
+// Init
+restartQuiz();
+</script>
+</body>
+</html>
